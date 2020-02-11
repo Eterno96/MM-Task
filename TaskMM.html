@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        class Group {
+            constructor(name, midIndex, endIndex, logic) {
+                this.name = name;
+                this.midIndex = midIndex;
+                this.endIndex = endIndex;
+                this.logic = logic;
+            }
+        }
+
+        const logics = ['a', 'b', 'c', 'b', 'd', 'a', 'b', 'c', 'b', 'd'];
+        const groupMap = new Map();
+        let n;
+
+        function createGroups(colsPerGroup) {
+            let colIndex = 0;
+
+            for (let i = 0; i < 10; i++) {
+                const name = i;
+                const endIndex = colIndex + colsPerGroup - 1;
+                const midIndex = (colIndex + endIndex) / 2;
+                const logic = logics[i];
+                const group = new Group(name, midIndex, endIndex, logic);
+                groupMap.set(group.name, group);
+                colIndex += colsPerGroup
+            }
+        }
+
+        function createBoard(rows, cols) {
+            const board = [];
+
+            for (let i = 0; i < rows; i++) {
+                board[i] = [];
+                for (let j = 0; j < cols; j++) {
+                    board[i][j] = '*';
+                }
+            }
+            return board;
+        }
+
+        function printArray(board) {
+            let str = '';
+
+            for (let i = 0; i < board.length; i++) {
+                for (let j = 0; j < board[i].length; j++) {
+                    str += board[i][j];
+                }
+                str += '\n';
+            }
+            return str;
+        }
+
+        function populateValues(rows, cols, arr, n) {
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const currentGroupName = Math.floor(j / n);
+                    const group = groupMap.get(currentGroupName);
+                    let reducedJ = j % n;
+                    let reducedMidIndex = group.midIndex % n;
+                    let reducedEndIndex = group.endIndex % n;
+                    switch (group.logic) {
+                        case 'a':
+                            arr[i][j] = executeLogicA(i, j, group.endIndex);
+                            break;
+                        case 'b':
+                            arr[i][j] = executeLogicB(i, reducedJ, reducedMidIndex, reducedEndIndex);
+                            break;
+                        case 'c':
+                            arr[i][j] = executeLogicC(i, reducedJ, reducedMidIndex, reducedEndIndex);
+                            break;
+                        case 'd':
+                            arr[i][j] = executeLogicD(i, reducedJ, reducedMidIndex, reducedEndIndex);
+                            break;
+                    }
+                }
+            }
+        }
+
+        function executeLogicA(ind1, ind2, groupEndIndex) {
+            if (ind1 + ind2 > groupEndIndex) {
+                return '*';
+            } else {
+                return '-';
+            }
+        }
+
+        function executeLogicB(ind1, ind2, midIndex, endIndex) {
+            if (ind2 <= midIndex) {
+                if (ind1 + ind2 <= endIndex) {
+                    return '*';
+                } else {
+                    return '-';
+                }
+            } else {
+                if (ind1 <= ind2) {
+                    return '*';
+                } else {
+                    return '-';
+                }
+            }
+        }
+
+        function executeLogicC(ind1, ind2, midIndex, endIndex) {
+            if (ind2 <= midIndex) {
+                if (ind1 <= ind2) {
+                    return '-';
+                } else {
+                    return '*';
+                }
+            } else {
+                if (ind1 + ind2 <= endIndex) {
+                    return '-';
+                } else {
+                    return '*';
+                }
+            }
+        }
+
+        function executeLogicD(ind1, ind2) {
+            if (ind1 > ind2) {
+                return '*';
+            } else {
+                return '-';
+            }
+        }
+
+        do {
+            n = prompt("Please enter your number");
+        } while (n < 3 || n > 9999 || n % 2 === 0 || isNaN(n));
+
+        function printLogo(n) {
+            n = +n;
+            createGroups(n);
+            let arr = createBoard(n + 1, n * 10);
+            populateValues(n + 1, n * 10, arr, n);
+            let str = printArray(arr);
+            console.log(str);
+        }
+        printLogo(n)
+    </script>
+</body>
+
+</html>
